@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: train-service
+spec:
+  selector:
+    matchLabels:
+      app: train-service
+  replicas: 1
+  template: # template for the pods
+    metadata:
+      labels:
+        app: train-service
+    spec:
+      containers:
+      - name: train-service
+        image: rohitkasture23/trainservice:3
+        # Using this as a way to avoid having to bother pushing images to registry.
+        ports:
+        - containerPort: 8081
+          name: server
+        env:
+        - name: spring.datasource.password
+          value: Tihor1234
+        - name: spring.datasource.url
+          value: jdbc:mysql://bookmytrain.c2cthqp1rdyc.us-west-1.rds.amazonaws.com:3306/Trains
+        - name: spring.datasource.username
+          value: root
+	
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: train-service
+
+spec:
+  # This defines which pods are going to be represented by this Service
+  # The service becomes a network endpoint for either other services
+  # or maybe external users to connect to (eg browser)
+  selector:
+    app: train-service
+
+  ports:
+    - name: http
+      port: 8011
+      nodePort: 30021
+      targetPort: 8081
+  type: NodePort
+  
+  
